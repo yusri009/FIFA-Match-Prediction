@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIFA Match Predictor</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">FIFA Match Prediction</p>
+        <h1>Predict the result of any international match</h1>
+        <p class="lead">
+          Pick two countries from the dropdowns, choose whether the match is neutral, and get win, draw, and loss probabilities instantly.
+        </p>
+      </div>
+      <div class="hero-card">
+        <div class="card-badge">Live ML model</div>
+        <div class="stat-grid">
+          <div>
+            <span class="stat-label">Teams loaded</span>
+            <strong id="team-count">0</strong>
+          </div>
+          <div>
+            <span class="stat-label">Prediction</span>
+            <strong>FastAPI</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <form id="predict-form" class="form-grid">
+        <label>
+          <span>Home team</span>
+          <select id="home-team" required>
+            <option value="">Loading teams...</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Away team</span>
+          <select id="away-team" required>
+            <option value="">Loading teams...</option>
+          </select>
+        </label>
+
+        <label class="toggle-row">
+          <input id="neutral-venue" type="checkbox" />
+          <span>Neutral venue</span>
+        </label>
+
+        <button type="submit" class="primary-btn">Predict Match</button>
+      </form>
+
+      <div id="message" class="message" aria-live="polite"></div>
+
+      <section id="results" class="results hidden">
+        <div class="result-head">
+          <h2 id="result-title">Prediction</h2>
+          <p id="result-context"></p>
+        </div>
+
+        <div class="bars">
+          <div class="bar-card">
+            <div class="bar-label-row">
+              <span id="home-label">Home Win</span>
+              <strong id="home-value">0%</strong>
+            </div>
+            <div class="bar-track"><div id="home-bar" class="bar-fill home"></div></div>
+          </div>
+
+          <div class="bar-card">
+            <div class="bar-label-row">
+              <span>Draw</span>
+              <strong id="draw-value">0%</strong>
+            </div>
+            <div class="bar-track"><div id="draw-bar" class="bar-fill draw"></div></div>
+          </div>
+
+          <div class="bar-card">
+            <div class="bar-label-row">
+              <span id="away-label">Away Win</span>
+              <strong id="away-value">0%</strong>
+            </div>
+            <div class="bar-track"><div id="away-bar" class="bar-fill away"></div></div>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div>
+            <span>Elo gap</span>
+            <strong id="elo-gap">0</strong>
+          </div>
+          <div>
+            <span>Form gap</span>
+            <strong id="form-gap">0</strong>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

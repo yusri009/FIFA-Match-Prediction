@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import pandas as pd
+from pathlib import Path
 from contextlib import asynccontextmanager
 import warnings
 warnings.filterwarnings('ignore')
@@ -13,6 +16,7 @@ from phase4_tournament_simulator import extract_latest_stats
 # Global variables to hold our trained model and team stats in memory
 match_model = None
 stats = None
+base_dir = Path(__file__).resolve().parent
 
 # This lifespan function runs once when the server starts up
 @asynccontextmanager
@@ -27,6 +31,7 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI
 app = FastAPI(title="FIFA ML Predictor API", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=base_dir / "static"), name="static")
 
 # MUST INCLUDE CORS: This allows your custom UI (running somewhere else) 
 # to talk to this API without the browser blocking it.
@@ -46,7 +51,17 @@ class MatchRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"message": "FIFA Match Predictor API is running! Send a POST request to /predict."}
+    html_path = base_dir / "static" / "index.html"
+    return HTMLResponse(html_path.read_text(encoding="utf-8"))
+
+
+@app.get("/teams")
+def get_teams():
+    if not stats:
+        return JSONResponse({"teams": []})
+
+    teams = sorted(stats.keys())
+    return {"teams": teams}
 
 @app.post("/predict")
 def predict_match(request: MatchRequest):
