@@ -5,18 +5,27 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import pandas as pd
 from pathlib import Path
+import sys
 from contextlib import asynccontextmanager
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import the tools we built in Phase 3 and Phase 4
-from phase3_primary_model import train_match_engine
-from phase4_tournament_simulator import extract_latest_stats
+# 1. Define the base directory FIRST
+base_dir = Path(__file__).resolve().parent
+
+# 2. Add 'ml_core' to Python's system path. 
+# This prevents the ModuleNotFoundError because it tells Python 
+# to also look inside the ml_core folder when scripts import each other!
+sys.path.append(str(base_dir / "ml_core"))
+
+# Now we can safely import from the new 'ml_core' module
+from ml_core.live_scraper import fetch_live_elo
+from ml_core.phase3_primary_model import train_match_engine
+from ml_core.phase4_tournament_simulator import extract_latest_stats
 
 # Global variables to hold our trained model and team stats in memory
 match_model = None
 stats = None
-base_dir = Path(__file__).resolve().parent
 
 # This lifespan function runs once when the server starts up
 @asynccontextmanager
@@ -31,7 +40,9 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI
 app = FastAPI(title="FIFA ML Predictor API", lifespan=lifespan)
-app.mount("/static", StaticFiles(directory=base_dir / "static"), name="static")
+
+# Updated to use the lowercase "ui" folder
+app.mount("/ui", StaticFiles(directory=base_dir / "ui"), name="ui")
 
 # MUST INCLUDE CORS: This allows your custom UI (running somewhere else) 
 # to talk to this API without the browser blocking it.
@@ -51,7 +62,8 @@ class MatchRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    html_path = base_dir / "static" / "index.html"
+    # Updated to use the lowercase "ui" folder
+    html_path = base_dir / "ui" / "index.html"
     return HTMLResponse(html_path.read_text(encoding="utf-8"))
 
 
@@ -74,6 +86,17 @@ def predict_match(request: MatchRequest):
     # Get stats (fallback to averages if the team is completely unknown)
     stat_home = stats.get(home, {'elo': 1500, 'form': 1.5, 'attack': 1.0})
     stat_away = stats.get(away, {'elo': 1500, 'form': 1.5, 'attack': 1.0})
+    
+    # --- ATTEMPT LIVE SCRAPING ---
+    # We try to overwrite the CSV Elo with the live internet Elo
+    live_home_elo = fetch_live_elo(home)
+    if live_home_elo is not None:
+        stat_home['elo'] = live_home_elo
+        
+    live_away_elo = fetch_live_elo(away)
+    if live_away_elo is not None:
+        stat_away['elo'] = live_away_elo
+    # -----------------------------
     
     # Calculate context for the model
     features = pd.DataFrame([{
