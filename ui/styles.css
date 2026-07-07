@@ -20,6 +20,8 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text);
   background:
+    linear-gradient(rgba(5, 9, 20, 0.86), rgba(5, 9, 20, 0.88)),
+    url("/ui/images/FIFA-World-Cup-26-Official-Logo.webp") center center / cover no-repeat fixed,
     radial-gradient(circle at top left, rgba(92, 168, 255, 0.26), transparent 30%),
     radial-gradient(circle at top right, rgba(86, 216, 163, 0.18), transparent 28%),
     linear-gradient(160deg, #050914 0%, #091427 52%, #07111f 100%);
@@ -85,6 +87,13 @@ h1 {
   color: var(--muted);
   font-size: 1.02rem;
   line-height: 1.6;
+}
+
+.hero-note {
+  margin: 18px 0 0;
+  color: rgba(242, 245, 251, 0.82);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
 }
 
 .hero-card {
@@ -279,6 +288,24 @@ select:focus {
   display: none;
 }
 
+.page-footer {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(10, 19, 34, 0.62);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  text-align: center;
+  color: rgba(242, 245, 251, 0.84);
+  font-size: 0.95rem;
+}
+
+.page-footer p {
+  margin: 0;
+}
+
 @media (max-width: 860px) {
   .hero,
   .form-grid {
@@ -326,5 +353,10 @@ select:focus {
 
   .stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page-footer {
+    width: min(100% - 20px, 1120px);
+    margin-bottom: 18px;
   }
 }
